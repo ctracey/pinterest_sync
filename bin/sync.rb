@@ -16,12 +16,11 @@ def download_folder
   ARGV[2]
 end
 
-def pins
-  board = Board.new(id: board_id, api_token: pinterest_api_token)
-  board.pins
+def board
+  Board.new(id: board_id, api_token: pinterest_api_token)
 end
 
 begin
-  downloader = Downloader.new(pins: pins, download_folder: download_folder)
+  downloader = Downloader.new(board: board, download_path: download_folder)
   downloader.run
 end
