@@ -24,12 +24,12 @@ def board
   Board.new(id: board_id, api_token: pinterest_api_token)
 end
 
-def send_notification
-  `osascript -e 'display notification "Synced #{board_title} board" with title "Pinterest Sync"'`
+def send_notification(total_new_pins)
+  `osascript -e 'display notification "Synced #{board_title} board: #{total_new_pins} new pins." with title "Pinterest Sync"'`
 end
 
 begin
   downloader = Downloader.new(board: board, download_path: download_folder)
   downloader.run
-  send_notification
+  send_notification(downloader.total_new_pins)
 end

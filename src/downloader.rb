@@ -2,7 +2,7 @@ require 'digest'
 
 class Downloader
 
-  attr_accessor :board, :successes, :failures, :download_folder
+  attr_accessor :board, :successes, :failures, :download_folder, :total_new_pins
 
   def initialize(board:, download_path:)
     @board = board
@@ -18,7 +18,7 @@ class Downloader
   end
 
   def run
-    total_new_pins = 0
+    @total_new_pins = 0
     begin
       puts "Syncing pinterest board with #{total_pins}"
       puts "\tpages found: #{board.page_count}"
@@ -26,7 +26,7 @@ class Downloader
       puts "\tlocal collection files: #{local_collection_size}"
 
       new_pins = find_new_pins
-      total_new_pins = new_pins.size
+      @total_new_pins = new_pins.size
       puts "#{new_pins.size} new images to download"
 
       download_pins(new_pins)
@@ -35,7 +35,7 @@ class Downloader
       puts e.backtrace
     end
 
-    download_report(total_new_pins)
+    download_report(@total_new_pins)
   end
 
   private
