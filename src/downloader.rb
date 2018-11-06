@@ -18,6 +18,7 @@ class Downloader
   end
 
   def run
+    synced = true
     @total_new_pins = 0
     begin
       puts "Syncing pinterest board with #{total_pins}"
@@ -33,9 +34,11 @@ class Downloader
     rescue StandardError => e
       puts "Error: #{e.message}"
       puts e.backtrace
+      synced = false
     end
 
     download_report(@total_new_pins)
+    synced
   end
 
   private

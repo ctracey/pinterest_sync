@@ -31,6 +31,10 @@ class PinSet
 
   def load_set_page
     pins_json = HTTParty.get(page_url).body
-    JSON.parse(pins_json)
+    set_page = JSON.parse(pins_json)
+    if set_page['data'].nil?
+      raise "SYNC ERROR: #{set_page['message']}"
+    end
+    set_page
   end
 end
