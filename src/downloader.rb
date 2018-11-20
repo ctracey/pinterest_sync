@@ -1,12 +1,14 @@
 require 'digest'
+require_relative 'board_bookmarks'
 
 class Downloader
 
-  attr_accessor :board, :successes, :failures, :download_folder, :total_new_pins
+  attr_accessor :board, :successes, :failures, :download_folder, :total_new_pins, :board_bookmarks
 
   def initialize(board:, download_path:)
     @board = board
     @download_folder = setup_download_folder(download_path)
+    @board.previous_synced_pin = board_bookmarks.get_pin(board_id: board.id)
 
     @failures = []
     @successes = 0
@@ -21,9 +23,11 @@ class Downloader
     synced = true
     @total_new_pins = 0
     begin
-      puts "Syncing pinterest board with #{total_pins}"
-      puts "\tpages found: #{board.page_count}"
-      puts "\timages found: #{board.image_count}"
+      board.load_pins
+
+      puts "Syncing pinterest board"
+      puts "\tunsynced pages found: #{board.page_count}"
+      puts "\timages synced: #{board.image_count}"
       puts "\tlocal collection files: #{local_collection_size}"
 
       new_pins = find_new_pins
@@ -31,6 +35,7 @@ class Downloader
       puts "#{new_pins.size} new images to download"
 
       download_pins(new_pins)
+      update_board_bookmarks
     rescue StandardError => e
       puts "Error: #{e.message}"
       puts e.backtrace
@@ -67,6 +72,16 @@ class Downloader
         puts response_code
       end
     end
+  end
+
+  def update_board_bookmarks
+    puts 'Updating board bookmarks'
+    board_bookmarks.set_pin(board_id: board.id, pin_id: board.most_recent_pin)
+    board_bookmarks.save
+  end
+
+  def board_bookmarks
+    @board_bookmarks ||= BoardBookmarks.new(bookmarks_file_path: download_folder.to_path)
   end
 
   def total_pins
